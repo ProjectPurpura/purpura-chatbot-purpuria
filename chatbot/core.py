@@ -7,7 +7,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from chatbot.tools.residuos_tool import RESIDUOS_TOOLS
 from chatbot.tools.redis_tool import TOOLS as DUVIDAS_TOOLS
 from chatbot.tools.pedidos_tool import PEDIDOS_TOOLS
-from redis_history import get_history, add_message
+from chatbot.redis_history import get_history, add_message
 from common.env import ENV
 import json
 import os
