@@ -10,7 +10,6 @@ from chatbot.tools.pedidos_tool import PEDIDOS_TOOLS
 from chatbot.redis_history import get_history, add_message
 from common.env import ENV
 import json
-import os
 import re
 
 # Configurações Iniciais
@@ -374,27 +373,30 @@ def executar_fluxo_purpuria(pergunta_usuario: str, usuario: str, chat_id: str) -
     return res_final_juiz
 
 
-# Execução Simplificada (Sem loop/if __main__)
-print("--- PurPurIA Multi-Agente Ativo (Orquestrador) ---")
 
-# Defina aqui um ID de usuário (user_id) real
-usuario_id = "17424290000101"
-chat_id_sessao = "02_teste"
-pergunta_usuario_teste = "quais são meus residuos"
 
-# Execução do fluxo
-try:
-    resposta_final = executar_fluxo_purpuria(
-        pergunta_usuario=pergunta_usuario_teste,
-        usuario=usuario_id,
-        chat_id=chat_id_sessao
-    )
+if __name__ == "__main__":
+    # Execução Simplificada (Sem loop/if __main__)
+    print("--- PurPurIA Multi-Agente Ativo (Orquestrador) ---")
 
-    print("\n<< PurPurIA:", resposta_final)
-except Exception as e:
-    if os.getenv("GEMINI_API_KEY") is None:
-        print(
-            "\n[ERRO DE CONFIGURAÇÃO] Por favor, defina a variável GEMINI_API_KEY no seu arquivo .env para executar o código.")
-    else:
-        print(f"\n[ERRO FATAL] Ocorreu uma exceção: {type(e).__name__}")
-        print(f"Detalhes do erro: {e}")
+    # Defina aqui um ID de usuário (user_id) real
+    usuario_id = "17424290000101"
+    chat_id_sessao = "02_teste"
+    pergunta_usuario_teste = "quais são meus residuos"
+
+    # Execução do fluxo
+    try:
+        resposta_final = executar_fluxo_purpuria(
+            pergunta_usuario=pergunta_usuario_teste,
+            usuario=usuario_id,
+            chat_id=chat_id_sessao
+        )
+
+        print("\n<< PurPurIA:", resposta_final)
+    except Exception as e:
+        if ENV.GEMINI_API_KEY is None:
+            print(
+                "\n[ERRO DE CONFIGURAÇÃO] Por favor, defina a variável GEMINI_API_KEY no seu arquivo .env para executar o código.")
+        else:
+            print(f"\n[ERRO FATAL] Ocorreu uma exceção: {type(e).__name__}")
+            print(f"Detalhes do erro: {e}")
