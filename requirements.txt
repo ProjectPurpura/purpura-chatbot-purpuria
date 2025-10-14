@@ -1,0 +1,9 @@
+fastapi~=0.119.0
+langchain_google_genai
+langchain_core
+langchain
+numpy
+redis
+dotenv
+pymongo
+psycopg2
