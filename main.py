@@ -7,7 +7,7 @@ app = FastAPI()
 
 @app.get("/alive")
 async def alive():
-    return {"status": "Api is alive!"}
+    return {"status": "banana", "content": "API is alive!"}
 
 
 @app.post('/chat/{chat_id}', response_model=MessageResponseDTO)
