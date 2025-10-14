@@ -8,3 +8,4 @@ dotenv
 pymongo
 psycopg2
 python-dotenv
+pydantic
