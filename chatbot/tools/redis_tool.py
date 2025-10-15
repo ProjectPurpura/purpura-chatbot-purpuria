@@ -3,14 +3,13 @@ import redis
 import json
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from langchain_core.tools import Tool 
-import os
+from langchain_core.tools import Tool
+from common.env import ENV
 
-REDIS_URL = os.getenv("REDIS_URL")
 
 # Conecta ao Redis usando a URL completa (Host, porta, autenticação)
 redis_client = redis.Redis.from_url(
-    REDIS_URL,
+    ENV.REDIS_URL,
     decode_responses=True
 )
 
