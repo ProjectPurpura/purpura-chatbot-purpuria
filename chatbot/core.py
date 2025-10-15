@@ -1,57 +1,56 @@
-from dotenv import load_dotenv
-load_dotenv()
-import os
-import re
-import json
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts.few_shot import FewShotChatMessagePromptTemplate
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from langchain_core.messages import HumanMessage, AIMessage 
-from redis_tool import TOOLS as DUVIDAS_TOOLS 
-from pedidos_tool import PEDIDOS_TOOLS
-from residuos_tool import RESIDUOS_TOOLS
-from redis_history import get_history, add_message 
+from langchain_core.messages import HumanMessage, AIMessage
+from chatbot.tools.residuos_tool import RESIDUOS_TOOLS
+from chatbot.tools.redis_tool import TOOLS as DUVIDAS_TOOLS
+from chatbot.tools.pedidos_tool import PEDIDOS_TOOLS
+from chatbot.redis_history import get_history, add_message
+from common.env import ENV
+import json
+import re
 
 # Configurações Iniciais
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+    model='gemini-2.5-flash',
     temperature=0.7,
     top_p=0.95,
-    google_api_key=os.getenv("GEMINI_API_KEY") 
+    google_api_key=ENV.GEMINI_API_KEY
 )
 
 llm_fast = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",
     temperature=0,
-    google_api_key=os.getenv("GEMINI_API_KEY")
+    google_api_key=ENV.GEMINI_API_KEY
 )
 
 # --- CONFIGURAÇÃO DO GUARDRAIL ---
 
-LISTA_PALAVRAS_OFENSIVAS = ["bosta", "merda", "puta", "viado", "caralho", "foda-se"] # Adicione mais conforme necessário
+LISTA_PALAVRAS_OFENSIVAS = ["bosta", "merda", "puta", "viado", "caralho",
+                            "foda-se"]
 RESPOSTA_RECUSA_ENTRADA = "Desculpe, a pergunta toca em um tópico fora do meu escopo e/ou é inapropriada para este canal de suporte. Por favor, reformule sua questão sobre resíduos, pedidos ou dúvidas do aplicativo PurPurIA."
-RESPOSTA_RECUSA_SAIDA = "Houve uma falha na geração da resposta. Por favor, tente novamente mais tarde." 
+RESPOSTA_RECUSA_SAIDA = "Houve uma falha na geração da resposta. Por favor, tente novamente mais tarde."
 
 
 def check_input_guardrail(pergunta: str) -> bool:
     """Verifica se a pergunta do usuário é sugestiva, política ou inapropriada."""
     pergunta_lower = pergunta.lower()
     if any(palavra in pergunta_lower for palavra in ["presidente", "política", "religião", "sexo", "partido"]):
-        return True 
+        return True
     if re.search(r"o\s+que\s+o\s+melhor\s+presidente\s+falou", pergunta_lower):
-        return True 
-    return False 
+        return True
+    return False
 
 
 def check_output_guardrail(resposta: str) -> bool:
     """Verifica se a resposta final contém linguagem ofensiva."""
     resposta_lower = re.sub(r'[^\w\s]', '', resposta).lower()
     if any(palavra in resposta_lower.split() for palavra in LISTA_PALAVRAS_OFENSIVAS):
-        return True 
-    return False 
+        return True
+    return False
 
 
 # AGENTE 1: ROTEAR
@@ -78,10 +77,14 @@ example_prompt_base = ChatPromptTemplate.from_messages([
 
 # Shots do roteador (mantidos com a lógica de resposta direta para fora de escopo)
 shots_roteador = [
-    {"human": "Quais pedidos ativos eu tenho?", "ai": "ROUTE=pedidos\nPERGUNTA_ORIGINAL=Quais pedidos ativos eu tenho?\nCLARIFY="},
-    {"human": "Onde fica a sede da Purpura?", "ai": "ROUTE=duvidas_app\nPERGUNTA_ORIGINAL=Onde fica a sede da Purpura?\nCLARIFY="},
-    {"human": "Meus resíduos de plástico estão prontos?", "ai": "ROUTE=residuos\nPERGUNTA_ORIGINAL=Meus resíduos de plástico estão prontos?\nCLARIFY="},
-    {"human": "Me conta uma piada.", "ai": "Consigo ajudar apenas com questões da Purpura. Quer saber mais sobre reciclagem ou checar seu último pedido?"},
+    {"human": "Quais pedidos ativos eu tenho?",
+     "ai": "ROUTE=pedidos\nPERGUNTA_ORIGINAL=Quais pedidos ativos eu tenho?\nCLARIFY="},
+    {"human": "Onde fica a sede da Purpura?",
+     "ai": "ROUTE=duvidas_app\nPERGUNTA_ORIGINAL=Onde fica a sede da Purpura?\nCLARIFY="},
+    {"human": "Meus resíduos de plástico estão prontos?",
+     "ai": "ROUTE=residuos\nPERGUNTA_ORIGINAL=Meus resíduos de plástico estão prontos?\nCLARIFY="},
+    {"human": "Me conta uma piada.",
+     "ai": "Consigo ajudar apenas com questões da Purpura. Quer saber mais sobre reciclagem ou checar seu último pedido?"},
 ]
 
 fewshots_roteador = FewShotChatMessagePromptTemplate(examples=shots_roteador, example_prompt=example_prompt_base)
@@ -119,20 +122,21 @@ Você **SEMPRE** receberá o ID do usuário no campo `USER_ID` do seu input.
   - acompanhamento : texto curto de follow-up/próximo passo.
 """
 
+
 def criar_prompt_especialista(dominio: str, tools):
     """Cria o Prompt Template e Executor para um Especialista específico."""
     system_content = SYSTEM_PROMPT_ESPECIALISTA.format(dominio_key=dominio)
-    
+
     system_prompt_tuple = ("system", system_content)
 
     prompt = ChatPromptTemplate.from_messages([
         system_prompt_tuple,
-        fewshots_especialista, 
+        fewshots_especialista,
         MessagesPlaceholder("chat_history"),
         ("human", "{input}"),
         MessagesPlaceholder("agent_scratchpad")
     ])
-    
+
     agent = create_tool_calling_agent(llm, tools, prompt)
     executor = AgentExecutor(
         agent=agent,
@@ -141,6 +145,7 @@ def criar_prompt_especialista(dominio: str, tools):
         handle_parsing_errors=True
     )
     return executor
+
 
 # Few-Shots dos Especialistas (Simplificados para Rota Única)
 shots_especialista = [
@@ -155,7 +160,8 @@ shots_especialista = [
         "ai": """{{"dominio":"residuos","resposta":"Você tem 5kg de plástico e 2kg de metal prontos para coleta.","recomendacao":"Deseja agendar a coleta?"}}"""
     },
 ]
-fewshots_especialista = FewShotChatMessagePromptTemplate(examples=shots_especialista, example_prompt=example_prompt_base)
+fewshots_especialista = FewShotChatMessagePromptTemplate(examples=shots_especialista,
+                                                         example_prompt=example_prompt_base)
 
 # Criação dos Agentes Executores
 duvidas_executor = criar_prompt_especialista("duvidas_app", DUVIDAS_TOOLS)
@@ -190,7 +196,8 @@ shots_orquestrador = [
     },
 ]
 
-fewshots_orquestrador = FewShotChatMessagePromptTemplate(examples=shots_orquestrador, example_prompt=example_prompt_base)
+fewshots_orquestrador = FewShotChatMessagePromptTemplate(examples=shots_orquestrador,
+                                                         example_prompt=example_prompt_base)
 
 prompt_orquestrador = ChatPromptTemplate.from_messages([
     system_prompt_orquestrador,
@@ -220,7 +227,7 @@ Você receberá 4 campos-chave para sua análise.
 
 prompt_juiz = ChatPromptTemplate.from_messages([
     system_prompt_juiz,
-    MessagesPlaceholder("chat_history"), 
+    MessagesPlaceholder("chat_history"),
     ("human", """
 PERGUNTA_ORIGINAL: {pergunta_original}
 ROTA_USADA: {rota_usada}
@@ -231,6 +238,7 @@ RESPOSTA_FINAL: {resposta_final}
 
 # Chain do Juiz
 juiz_chain = prompt_juiz | llm_fast | StrOutputParser()
+
 
 def formatar_historico_para_langchain(usuario: str, chat_id: str) -> list:
     """Busca o histórico no Redis e formata para lista de Human/AIMessage."""
@@ -243,16 +251,17 @@ def formatar_historico_para_langchain(usuario: str, chat_id: str) -> list:
             chat_msgs.append(AIMessage(content=msg["conteudo"]))
     return chat_msgs
 
+
 # FUNÇÃO EXECUTORA SIMPLIFICADA
 def executar_fluxo_purpuria(pergunta_usuario: str, usuario: str, chat_id: str) -> str:
     """Executa o fluxo completo do roteador ao orquestrador, seguindo a lógica de Rota Única."""
-    
+
     # --- PASSO 0: GUARDRAIL DE ENTRADA ---
     if check_input_guardrail(pergunta_usuario):
         add_message(usuario, chat_id, "user", pergunta_usuario)
         add_message(usuario, chat_id, "assistant", RESPOSTA_RECUSA_ENTRADA)
         return RESPOSTA_RECUSA_ENTRADA
-    
+
     # 1. Recuperar o histórico
     historico = formatar_historico_para_langchain(usuario, chat_id)
 
@@ -277,7 +286,7 @@ def executar_fluxo_purpuria(pergunta_usuario: str, usuario: str, chat_id: str) -
             "resposta_final": res_roteador,
             "chat_history": historico
         })
-        
+
         # --- VERIFICAÇÃO DE SAÍDA NO JUIZ DIRETO ---
         if check_output_guardrail(res_juiz_direta):
             res_final = RESPOSTA_RECUSA_SAIDA
@@ -285,27 +294,27 @@ def executar_fluxo_purpuria(pergunta_usuario: str, usuario: str, chat_id: str) -
             add_message(usuario, chat_id, "assistant", res_final)
             return res_final
         # -------------------------------------------
-        
+
         add_message(usuario, chat_id, "user", pergunta_usuario)
         add_message(usuario, chat_id, "assistant", res_juiz_direta)
         return res_juiz_direta
-    
+
     # 4. EXECUTAR O ÚNICO ESPECIALISTA (CASO DENTRO DE ESCOPO)
     rota = match.group(1).strip()
-    
+
     if rota not in ESPECIALISTAS_MAP:
         return f"Erro: Rota '{rota}' não mapeada para um agente especialista."
-            
+
     agente_especialista = ESPECIALISTAS_MAP[rota]
-        
+
     # Cria o INPUT do Especialista
     input_especialista = (
-        f"ROUTE={rota}\n" 
-        f"PERGUNTA_ORIGINAL={pergunta_usuario}\n" 
-        f"DADO_ANTERIOR=\n" 
+        f"ROUTE={rota}\n"
+        f"PERGUNTA_ORIGINAL={pergunta_usuario}\n"
+        f"DADO_ANTERIOR=\n"
         f"USER_ID={usuario}"
     )
-    
+
     # Executa o Especialista
     res_especialista = agente_especialista.invoke({
         "input": input_especialista,
@@ -313,8 +322,8 @@ def executar_fluxo_purpuria(pergunta_usuario: str, usuario: str, chat_id: str) -
     })
 
     json_str = res_especialista.get('output', '{}')
-        
-    # Limpa o JSON 
+
+    # Limpa o JSON
     json_limpo = json_str.strip()
     if json_limpo.startswith("```json"):
         json_limpo = json_limpo.replace("```json", "", 1).strip()
@@ -331,9 +340,9 @@ def executar_fluxo_purpuria(pergunta_usuario: str, usuario: str, chat_id: str) -
 
     # 5. EXECUTAR O ORQUESTRADOR
     input_orquestrador = f"ESPECIALISTA_JSON:\n{resposta_final_json}"
-    
+
     orquestrador_chain = prompt_orquestrador | llm_fast | StrOutputParser()
-    
+
     res_orquestrador = orquestrador_chain.invoke({
         "input": input_orquestrador,
         "chat_history": historico
@@ -349,7 +358,7 @@ def executar_fluxo_purpuria(pergunta_usuario: str, usuario: str, chat_id: str) -
         "resposta_final": res_orquestrador,
         "chat_history": historico
     })
-    
+
     # --- PASSO 7: GUARDRAIL DE SAÍDA FINAL ---
     if check_output_guardrail(res_final_juiz):
         res_final = RESPOSTA_RECUSA_SAIDA
@@ -360,29 +369,34 @@ def executar_fluxo_purpuria(pergunta_usuario: str, usuario: str, chat_id: str) -
     # 8. Salvar e Retornar
     add_message(usuario, chat_id, "user", pergunta_usuario)
     add_message(usuario, chat_id, "assistant", res_final_juiz)
-    
+
     return res_final_juiz
 
-# Execução Simplificada (Sem loop/if __main__)
-print("--- PurPurIA Multi-Agente Ativo (Orquestrador) ---")
 
-# Defina aqui um ID de usuário (user_id) real
-usuario_id = "17424290000101"
-chat_id_sessao = "02_teste" 
-pergunta_usuario_teste = "quais são meus residuos"
 
-# Execução do fluxo
-try:
-    resposta_final = executar_fluxo_purpuria(
-        pergunta_usuario=pergunta_usuario_teste,
-        usuario=usuario_id,
-        chat_id=chat_id_sessao
-    )
-    
-    print("\n<< PurPurIA:", resposta_final)
-except Exception as e:
-    if os.getenv("GEMINI_API_KEY") is None:
-        print("\n[ERRO DE CONFIGURAÇÃO] Por favor, defina a variável GEMINI_API_KEY no seu arquivo .env para executar o código.")
-    else:
-        print(f"\n[ERRO FATAL] Ocorreu uma exceção: {type(e).__name__}")
-        print(f"Detalhes do erro: {e}")
+
+if __name__ == "__main__":
+    # Execução Simplificada (Sem loop/if __main__)
+    print("--- PurPurIA Multi-Agente Ativo (Orquestrador) ---")
+
+    # Defina aqui um ID de usuário (user_id) real
+    usuario_id = "17424290000101"
+    chat_id_sessao = "02_teste"
+    pergunta_usuario_teste = "quais são meus residuos"
+
+    # Execução do fluxo
+    try:
+        resposta_final = executar_fluxo_purpuria(
+            pergunta_usuario=pergunta_usuario_teste,
+            usuario=usuario_id,
+            chat_id=chat_id_sessao
+        )
+
+        print("\n<< PurPurIA:", resposta_final)
+    except Exception as e:
+        if ENV.GEMINI_API_KEY is None:
+            print(
+                "\n[ERRO DE CONFIGURAÇÃO] Por favor, defina a variável GEMINI_API_KEY no seu arquivo .env para executar o código.")
+        else:
+            print(f"\n[ERRO FATAL] Ocorreu uma exceção: {type(e).__name__}")
+            print(f"Detalhes do erro: {e}")

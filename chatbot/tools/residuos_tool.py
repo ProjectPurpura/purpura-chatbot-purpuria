@@ -1,18 +1,9 @@
-import os
 import json
 from langchain.tools import tool
 from pymongo import MongoClient
-import psycopg2 
+import psycopg2
+from common.env import ENV
 
-# CONFIGURAÇÃO DE CONEXÃO
-
-MONGO_URL = os.getenv("URL_MONGO")
-POSTGRES_URL = os.getenv("URL_POSTGRES")
-
-if not MONGO_URL:
-    raise ValueError("URL_MONGO não encontrada no .env. Configure a URL do Atlas/Mongo.")
-if not POSTGRES_URL:
-    raise ValueError("URL_POSTGRES não encontrada no .env. Necessária para residuoPedido.")
 
 # TOOLS PARA O AGENTE RESÍDUOS
 
@@ -28,7 +19,7 @@ def consultar_catalogo_residuos(user_id: str) -> str:
     client = None
     try:
         # 1. Conexão e Seleção de Coleção
-        client = MongoClient(MONGO_URL)
+        client = MongoClient(ENV.MONGO_URL)
         db = client['purpura'] 
         collection = db['empresas']
 
@@ -68,7 +59,7 @@ def obter_residuos_de_pedido(pedido_id: str) -> str:
     conn = None
     try:
         # 1. Conexão
-        conn = psycopg2.connect(POSTGRES_URL)
+        conn = psycopg2.connect(ENV.POSTGRES_URL)
         cur = conn.cursor()
         cur.execute(sql)
         

@@ -1,0 +1,12 @@
+fastapi~=0.119.0
+langchain_google_genai
+langchain_core
+langchain
+numpy
+redis>=5.0.0
+dotenv
+pymongo
+psycopg2
+python-dotenv
+pydantic
+sentence_transformers

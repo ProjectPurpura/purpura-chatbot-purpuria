@@ -1,14 +1,7 @@
-import os
 import json
 import psycopg2
 from langchain.tools import tool
-
-# CONFIGURAÇÃO DE CONEXÃO
-
-POSTGRES_URL = os.getenv("URL_POSTGRES")
-
-if not POSTGRES_URL:
-    raise ValueError("URL_POSTGRES não encontrada no .env. Configure a URL do Aiven/Postgres.")
+from common.env import ENV
 
 # FUNÇÃO DE EXECUÇÃO AUXILIAR
 
@@ -16,7 +9,7 @@ def execute_sql_and_return_json(sql: str) -> str:
     """Executa consultas no PostgreSQL e retorna resultados como JSON."""
     conn = None
     try:
-        conn = psycopg2.connect(POSTGRES_URL)
+        conn = psycopg2.connect(ENV.POSTGRES_URL)
         cur = conn.cursor()
         cur.execute(sql)
         

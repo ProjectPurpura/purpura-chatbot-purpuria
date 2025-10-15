@@ -1,0 +1,39 @@
+meta {
+  name: post_message
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL}}/chat/chat_teste
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "pergunta": "Quando foi o big bang?",
+    "usuario_id": "17424290000101"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  1. Pergunta sem sentido
+  ```json
+  {
+    "pergunta": "Quando foi o big bang?",
+    "usuario_id": "17424290000101"
+  }
+  ```  
+  2. 
+  ```json
+  {
+    "pergunta": "Olá IA linda e maravilhosa, por obséquio de sua infinita misercórdia poderia mostrar-me quantos resíduos eu tenho?",
+    "usuario_id": "17424290000101"
+  }
+  ```
+}

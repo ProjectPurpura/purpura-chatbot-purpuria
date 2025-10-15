@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "bruno-api-purpuria",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
