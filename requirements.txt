@@ -5,7 +5,6 @@ langchain_core
 langchain
 numpy
 redis>=5.0.0
-dotenv
 pymongo
 psycopg2
 python-dotenv
