@@ -6,5 +6,5 @@ class MessageRequestDTO(BaseModel):
     usuario_id: str
 
 class MessageResponseDTO(BaseModel):
-    response: str
+    resposta: str
     timestamp: datetime = datetime.now()

@@ -13,8 +13,8 @@ async def alive():
 @app.post('/chat/{chat_id}', response_model=MessageResponseDTO)
 async def doMessage(chat_id: str, msg: MessageRequestDTO):
 
-    response = executar_fluxo_purpuria(msg.pergunta, msg.usuario_id, chat_id)
+    resposta = executar_fluxo_purpuria(msg.pergunta, msg.usuario_id, chat_id)
 
     return MessageResponseDTO(
-        response = response
+        resposta = resposta
     )
