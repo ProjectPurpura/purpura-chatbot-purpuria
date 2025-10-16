@@ -16,4 +16,13 @@
 ## Overview ✨
 
 ## Link do Swagger 🧪
-- Link do swagger: [Swagger](http://localhost:8000/docs)
+- Link do swagger (Produção): [https://chatbot-purpuria.onrender.com/docs](https://chatbot-purpuria.onrender.com/docs)
+
+## Autores 💃
+Feito com 💜 por:
+- [Pedro Eduardo](https://github.com/pedroeduardoGerminare) - Chatbot, Dados
+- [Giovanne Bahia Torquato](https://github.com/Giovanne-Bahia) - Chatbot, Dados
+
+E com ajuda de:
+- [Felipe Fernandes dos Santos Oliveira](https://github.com/rkhue) - Implementação do FastAPI, docker
+- [Emílio Stuart Palumbo](https://github.com/EmilioStuart) - Esteira de deploy para o render
