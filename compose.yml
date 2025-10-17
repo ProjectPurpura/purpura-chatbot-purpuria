@@ -1,0 +1,11 @@
+services:
+  chatbot:
+    build: .
+    container_name: chatbot
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - POSTGRES_URL=${POSTGRES_URL}
+      - MONGO_URL=${MONGO_URL}
+      - REDIS_URL=${REDIS_URL}
+    ports:
+      - 8000:8000
