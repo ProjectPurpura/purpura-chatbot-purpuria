@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /install /usr/local
 
 
-COPY chatbot /code/chatbot
+COPY purpuria /code/purpuria
 COPY common /code/common
 COPY dto.py main.py /code/
 
