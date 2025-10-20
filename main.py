@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from chatbot.core import executar_fluxo_purpuria
+from purpuria.core import executar_fluxo_purpuria
 from dto import MessageResponseDTO, MessageRequestDTO
 
 app = FastAPI()

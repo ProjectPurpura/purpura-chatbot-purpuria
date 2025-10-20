@@ -4,10 +4,10 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts.few_shot import FewShotChatMessagePromptTemplate
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.messages import HumanMessage, AIMessage
-from chatbot.tools.residuos_tool import RESIDUOS_TOOLS
-from chatbot.tools.redis_tool import TOOLS as DUVIDAS_TOOLS
-from chatbot.tools.pedidos_tool import PEDIDOS_TOOLS
-from chatbot.redis_history import get_history, add_message
+from purpuria.tools.residuos_tool import RESIDUOS_TOOLS
+from purpuria.tools.redis_tool import TOOLS as DUVIDAS_TOOLS
+from purpuria.tools.pedidos_tool import PEDIDOS_TOOLS
+from purpuria.redis_history import get_history, add_message
 from common.env import ENV
 import json
 import re
