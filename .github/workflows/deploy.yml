@@ -1,9 +1,7 @@
 name: Build and Deploy to Render
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -25,8 +23,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/purpuraambiental/chatbot-purpuria:${{ github.run_number }}
-            ghcr.io/purpuraambiental/chatbot-purpuria:latest
+            ghcr.io/projectpurpura/chatbot-purpuria:${{ github.run_number }}
+            ghcr.io/projectpurpura/chatbot-purpuria:latest
 
       - name: Trigger Render Deploy
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
