@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from purpuria.core import executar_fluxo_purpuria
-from dto import MessageResponseDTO, MessageRequestDTO
+from dto import MessageResponseDTO, MessageRequestDTO, EmbeddingRequestDTO
+from infoRedis import add_embedding
 
 app = FastAPI()
 
@@ -18,3 +19,8 @@ async def doMessage(chat_id: str, msg: MessageRequestDTO):
     return MessageResponseDTO(
         resposta = resposta
     )
+
+@app.post("/embed")
+async def embed(embedding: EmbeddingRequestDTO):
+    add_embedding(embedding.texto)
+    return {"status": "Embedding added to Redis!"}

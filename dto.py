@@ -8,3 +8,6 @@ class MessageRequestDTO(BaseModel):
 class MessageResponseDTO(BaseModel):
     resposta: str
     timestamp: datetime = datetime.now()
+
+class EmbeddingRequestDTO(BaseModel):
+    texto: str
