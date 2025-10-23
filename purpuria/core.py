@@ -1,7 +1,7 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
-from langchain.prompts.few_shot import FewShotChatMessagePromptTemplate
+from langchain_core.prompts import FewShotChatMessagePromptTemplate
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.messages import HumanMessage, AIMessage
 from purpuria.tools.residuos_tool import RESIDUOS_TOOLS
@@ -222,7 +222,7 @@ Você receberá 4 campos-chave para sua análise.
 
 ### SAÍDA
 - Se a resposta for **validada**, retorne **EXATAMENTE** a RESPOSTA_FINAL, sem alterações, comentários ou formatação extra.
-- Se a resposta for **incoerente** ou **faltar informação crítica**, faça uma **REESCRITA** que corrija o problema, mantendo o formato recebido.
+- Se a resposta for **incoerente** ou **faltar informação crítica**, faça uma **RETORNO** dessa frase **ESPECIFICAMENTE** "Desculpe, ainda não tenho informações suficientes para ajudar com isso.".
 """)
 
 prompt_juiz = ChatPromptTemplate.from_messages([

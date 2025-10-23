@@ -2,56 +2,78 @@
 import redis
 import json
 import numpy as np
-from sentence_transformers import SentenceTransformer
 from langchain_core.tools import Tool
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from common.env import ENV
 
+# Conexão com Redis
+# redis_client = redis.Redis.from_url(
+#     ENV.REDIS_URL,
+#     decode_responses=True
+# )
 
-# Conecta ao Redis usando a URL completa (Host, porta, autenticação)
-redis_client = redis.Redis.from_url(
-    ENV.REDIS_URL,
+redis_client = redis.Redis(
+    host="localhost",   
+    port=6379,
+    db=0,
     decode_responses=True
 )
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# Modelo de embeddings Google
+embeddings_model = GoogleGenerativeAIEmbeddings(
+    model="models/text-embedding-004",
+    google_api_key=ENV.GEMINI_API_KEY
+)
 
 def cosine_similarity(vec1, vec2):
-    """Calcula similaridade de cosseno entre dois vetores"""
+    """Calcula similaridade de cosseno entre dois vetores."""
     vec1 = np.array(vec1)
     vec2 = np.array(vec2)
-    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    return float(np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2)))
 
-def buscar_no_redis(consulta, top_k=3):
+def buscar_no_redis(consulta):
     """
-    Gera embedding para a consulta e busca os embeddings mais próximos no Redis.
-    Retorna uma lista de mensagens relevantes.
+    Busca as 3 informações mais próximas no Redis com base no embedding da consulta.
+    Estrutura esperada:
+      - info0, info1, ... → strings com os textos
+      - embeddings_list → lista JSON com todos os embeddings (na mesma ordem)
     """
-    consulta_emb = model.encode(consulta).tolist()
+    # Gera embedding da consulta
+    consulta_emb = embeddings_model.embed_query(consulta)
 
-    chaves = redis_client.keys("info*")
+    # Recupera lista de embeddings
+    embeddings_json = redis_client.get("embeddings_list")
+    if not embeddings_json:
+        return ["Nenhum embedding armazenado no Redis."]
+
+    embeddings_list = json.loads(embeddings_json)
+
+    # Recupera todas as chaves infoX
+    chaves = sorted(redis_client.keys("info*"), key=lambda c: int(c.replace("info", "")))
     if not chaves:
         return ["Nenhuma informação cadastrada no Redis."]
 
     resultados = []
-    for chave in chaves:
-        dados = redis_client.hgetall(chave)
-        if "embedding" in dados:
-            emb_salvo = json.loads(dados["embedding"])
-            score = cosine_similarity(consulta_emb, emb_salvo)
-            resultados.append((score, dados.get("mensagem", "")))
+    for idx, chave in enumerate(chaves):
+        texto = redis_client.get(chave)
+        if texto and idx < len(embeddings_list):
+            score = cosine_similarity(consulta_emb, embeddings_list[idx])
+            resultados.append((score, texto))
 
-    # Ordenar por similaridade e pegar os top_k
-    resultados = sorted(resultados, key=lambda x: x[0], reverse=True)[:top_k]
+    # Ordena por maior similaridade e retorna as 3 mais próximas
+    resultados = sorted(resultados, key=lambda x: x[0], reverse=True)[:3]
+
     mensagens = [msg for _, msg in resultados]
-
-    return mensagens
-
+    return mensagens or ["Nenhuma informação relevante encontrada."]
 
 # TOOL no formato correto (lista de instâncias de Tool)
 TOOLS = [
     Tool(
         name="buscar_no_redis",
         func=buscar_no_redis,
-        description="Busca informações relevantes no Redis com base na pergunta do usuário. Use quando a dúvida for sobre a empresa, o aplicativo ou dados salvos."
+        description=(
+            "Busca as 3 informações mais relevantes no Redis com base na pergunta do usuário. "
+            "Use quando a dúvida for sobre dados, informações ou conteúdos armazenados."
+        )
     )
 ]
