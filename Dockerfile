@@ -26,6 +26,7 @@ COPY --from=builder /install /usr/local
 COPY purpuria /code/purpuria
 COPY common /code/common
 COPY dto.py main.py /code/
+COPY infoRedis.py /code/
 
 EXPOSE 8000
 
