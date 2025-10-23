@@ -7,17 +7,17 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from common.env import ENV
 
 # Conexão com Redis
-# redis_client = redis.Redis.from_url(
-#     ENV.REDIS_URL,
-#     decode_responses=True
-# )
-
-redis_client = redis.Redis(
-    host="localhost",   
-    port=6379,
-    db=0,
+redis_client = redis.Redis.from_url(
+    ENV.REDIS_URL,
     decode_responses=True
 )
+
+# redis_client = redis.Redis(
+#     host="localhost",
+#     port=6379,
+#     db=0,
+#     decode_responses=True
+# )
 
 # Modelo de embeddings Google
 embeddings_model = GoogleGenerativeAIEmbeddings(
