@@ -74,6 +74,12 @@ def limpar_embedding():
     redis_client.flushdb()
     print("Embeddings limpos do Redis.")
 
+def pegar_embeddings():
+    embeddings_json = redis_client.get("embeddings_list")
+    if not embeddings_json:
+        return []
+    return json.loads(embeddings_json)
+
 
 def adicionar_embedding_interativo():
     """
