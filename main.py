@@ -29,7 +29,7 @@ async def getMessages(historyRequest: ChatHistoryRequestDTO):
         return historyRequest.senderId if role == "user" else None
 
     return [
-        MessageResponseDTO(senderId=toSenderId(message['role']), content=message['content'])
+        MessageResponseDTO(senderId=toSenderId(message['role']), content=message['conteudo'])
         for message in history
     ]
 
