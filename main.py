@@ -104,6 +104,25 @@ async def embed(embedding: EmbeddingRequestDTO):
     return {"status": "Embedding added to Redis!"}
 
 
+@app.get(
+    "/embed",
+    summary="Obter embeddings",
+    description="Retorna todos os embeddings armazenados no Redis",
+    tags=["Embeddings"],
+    responses={
+        200: {
+            "description": "Embeddings encontrados",
+            "content": {
+                "application/json": {
+                    "example": {"embeddings": ["embedding1", "embedding2"]}
+                }
+            }
+        }
+    }
+)
+async def get_embeddings():
+    return {"embeddings": pegar_embeddings()}
+
 @app.delete(
     "/embed",
     summary="Limpar embeddings",
