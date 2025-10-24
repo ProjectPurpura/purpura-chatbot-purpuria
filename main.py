@@ -1,7 +1,7 @@
 from purpuria.core import executar_fluxo_purpuria
 from purpuria.redis_history import get_history
 from dto import MessageResponseDTO, MessageRequestDTO, EmbeddingRequestDTO, ChatHistoryRequestDTO
-from infoRedis import add_embedding, limpar_embedding
+from infoRedis import add_embedding, limpar_embedding, pegar_embeddings
 from fastapi import FastAPI
 
 app = FastAPI(
