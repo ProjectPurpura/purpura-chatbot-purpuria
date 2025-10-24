@@ -1,7 +1,8 @@
-from fastapi import FastAPI
 from purpuria.core import executar_fluxo_purpuria
-from dto import MessageResponseDTO, MessageRequestDTO, EmbeddingRequestDTO
+from purpuria.redis_history import get_history
+from dto import MessageResponseDTO, MessageRequestDTO, EmbeddingRequestDTO, ChatHistoryRequestDTO
 from infoRedis import add_embedding
+from fastapi import FastAPI
 
 app = FastAPI()
 
@@ -14,11 +15,24 @@ async def alive():
 @app.post('/chat/{chat_id}', response_model=MessageResponseDTO)
 async def doMessage(chat_id: str, msg: MessageRequestDTO):
 
-    resposta = executar_fluxo_purpuria(msg.pergunta, msg.usuario_id, chat_id)
+    resposta = executar_fluxo_purpuria(msg.content, msg.senderId, chat_id)
 
     return MessageResponseDTO(
-        resposta = resposta
+        senderId=msg.senderId,
+        content = resposta
     )
+
+@app.get("/chat", response_model=list[MessageResponseDTO])
+async def getMessages(historyRequest: ChatHistoryRequestDTO):
+    history = get_history(historyRequest.senderId, historyRequest.chatId)
+    def toSenderId(role: str):
+        return historyRequest.senderId if role == "user" else None
+
+    return [
+        MessageResponseDTO(senderId=toSenderId(message['role']), content=message['conteudo'])
+        for message in history
+    ]
+
 
 @app.post("/embed")
 async def embed(embedding: EmbeddingRequestDTO):

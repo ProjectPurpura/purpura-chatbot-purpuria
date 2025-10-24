@@ -1,12 +1,20 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+
+class ChatHistoryRequestDTO(BaseModel):
+    senderId: str
+    chatId: str
+
+
 class MessageRequestDTO(BaseModel):
-    pergunta: str
-    usuario_id: str
+    senderId: str
+    content: str
 
 class MessageResponseDTO(BaseModel):
-    resposta: str
+    content: str
+    senderId: str | None
+    read: bool = True
     timestamp: datetime = datetime.now()
 
 class EmbeddingRequestDTO(BaseModel):
