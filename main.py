@@ -49,7 +49,7 @@ async def doMessage(chat_id: str, msg: MessageRequestDTO):
     resposta = executar_fluxo_purpuria(msg.content, msg.senderId, chat_id)
 
     return MessageResponseDTO(
-        senderId=msg.senderId,
+        senderId=None,
         content=resposta
     )
 
