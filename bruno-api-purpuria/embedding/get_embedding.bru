@@ -1,0 +1,21 @@
+meta {
+  name: get_embedding
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/embed
+  body: none
+  auth: inherit
+}
+
+body:json {
+  {
+    "texto": "Para abrir a aba de produtos do purpura voce tem que procurar no menu inferior e selecionar 'produtos', onde tem um ícone de carrinho"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

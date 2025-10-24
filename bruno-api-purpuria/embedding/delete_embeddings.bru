@@ -1,0 +1,15 @@
+meta {
+  name: delete_embeddings
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{BASE_URL}}/embed
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

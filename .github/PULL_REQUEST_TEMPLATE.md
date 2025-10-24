@@ -9,6 +9,7 @@ Inclua um resumo da alteração e qual issue foi corrigida. Também inclua motiv
 - [ ] Mudança nas tools
 - [ ] Alteração/Inclusão de guardrails
 - [ ] Documentação ou README.md
+- [ ] Embedding
 - [ ] Esteira de Deploy, CI/CD.
 - [ ] Outros
 

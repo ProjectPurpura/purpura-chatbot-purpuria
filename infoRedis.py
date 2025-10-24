@@ -1,4 +1,3 @@
-import os
 import json
 import redis
 from common.env import ENV
@@ -70,6 +69,16 @@ def add_embedding(texto: str) -> bool:
         print(f"Erro inesperado: {e}")
 
     return False
+
+def limpar_embedding():
+    redis_client.flushdb()
+    print("Embeddings limpos do Redis.")
+
+def pegar_embeddings():
+    embeddings_json = redis_client.get("embeddings_list")
+    if not embeddings_json:
+        return []
+    return json.loads(embeddings_json)
 
 
 def adicionar_embedding_interativo():
