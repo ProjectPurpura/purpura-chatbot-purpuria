@@ -24,8 +24,7 @@ async def doMessage(chat_id: str, msg: MessageRequestDTO):
 
 @app.get("/chat", response_model=list[MessageResponseDTO])
 async def getMessages(historyRequest: ChatHistoryRequestDTO):
-    history = get_history(historyRequest.senderId, historyRequest.chat_id)
-
+    history = get_history(historyRequest.senderId, historyRequest.chatId)
     def toSenderId(role: str):
         return historyRequest.senderId if role == "user" else None
 

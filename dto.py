@@ -4,7 +4,7 @@ from datetime import datetime
 
 class ChatHistoryRequestDTO(BaseModel):
     senderId: str
-    chat_id: str
+    chatId: str
 
 
 class MessageRequestDTO(BaseModel):
