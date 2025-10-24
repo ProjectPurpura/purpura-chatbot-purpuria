@@ -1,7 +1,7 @@
 from purpuria.core import executar_fluxo_purpuria
 from purpuria.redis_history import get_history
 from dto import MessageResponseDTO, MessageRequestDTO, EmbeddingRequestDTO, ChatHistoryRequestDTO
-from infoRedis import add_embedding
+from infoRedis import add_embedding, limpar_embedding
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -38,3 +38,8 @@ async def getMessages(historyRequest: ChatHistoryRequestDTO):
 async def embed(embedding: EmbeddingRequestDTO):
     add_embedding(embedding.texto)
     return {"status": "Embedding added to Redis!"}
+
+@app.delete("/embed")
+async def clear_embeddings():
+    limpar_embedding()
+    return {"status": "Embeddings cleared from Redis!"}
