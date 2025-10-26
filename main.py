@@ -1,6 +1,7 @@
 from purpuria.core import executar_fluxo_purpuria
 from purpuria.redis_history import get_history
 from dto import MessageResponseDTO, MessageRequestDTO, EmbeddingRequestDTO, ChatHistoryRequestDTO
+from fastapi.middleware.cors import CORSMiddleware
 from infoRedis import add_embedding, limpar_embedding, pegar_embeddings
 from fastapi import FastAPI
 
@@ -8,6 +9,14 @@ app = FastAPI(
     title="API Purpuria Chatbot",
     description="API para interação com o chatbot Purpuria, incluindo gerenciamento de conversas e embeddings",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
