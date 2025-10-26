@@ -5,8 +5,8 @@ from infoRedis import add_embedding, limpar_embedding, pegar_embeddings
 from fastapi import FastAPI
 
 app = FastAPI(
-    title="API Purpúria Chatbot",
-    description="API para interação com o chatbot Purpúria, incluindo gerenciamento de conversas e embeddings",
+    title="API Purpuria Chatbot",
+    description="API para interação com o chatbot Purpuria, incluindo gerenciamento de conversas e embeddings",
     version="1.0.0"
 )
 
