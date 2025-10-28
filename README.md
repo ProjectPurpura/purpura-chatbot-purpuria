@@ -16,7 +16,7 @@
 ## Overview ✨
 
 ## Link do Swagger 🧪
-- Link do swagger (Produção): [https://chatbot-purpuria.onrender.com/docs](https://chatbot-purpuria-lk48.onrender.com)
+- Link do swagger (Produção): [https://chatbot-purpuria.onrender.com/docs](https://chatbot-purpuria-lk48.onrender.com/docs)
 
 ## Autores 💃
 Feito com 💜 por:
