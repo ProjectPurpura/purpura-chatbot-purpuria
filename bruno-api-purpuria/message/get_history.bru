@@ -5,9 +5,14 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/chat
-  body: json
+  url: {{BASE_URL}}/chat?senderId=17424290000101&chatId=chat_teste
+  body: none
   auth: inherit
+}
+
+params:query {
+  senderId: 17424290000101
+  chatId: chat_teste
 }
 
 body:json {
@@ -19,4 +24,5 @@ body:json {
 
 settings {
   encodeUrl: true
+  timeout: 0
 }

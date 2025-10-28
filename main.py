@@ -1,6 +1,6 @@
 from purpuria.core import executar_fluxo_purpuria
 from purpuria.redis_history import get_history
-from dto import MessageResponseDTO, MessageRequestDTO, EmbeddingRequestDTO, ChatHistoryRequestDTO
+from dto import MessageResponseDTO, MessageRequestDTO, EmbeddingRequestDTO
 from fastapi.middleware.cors import CORSMiddleware
 from infoRedis import add_embedding, limpar_embedding, pegar_embeddings
 from fastapi import FastAPI
@@ -69,16 +69,16 @@ async def doMessage(chat_id: str, msg: MessageRequestDTO):
     description = "Recupera o histórico completo de mensagens de uma conversa específica",
     tags = ["Chat"]
 )
-async def getMessages(historyRequest: ChatHistoryRequestDTO):
+async def getMessages(chatId: str, senderId: str):
     """
     Retorna todas as mensagens de um chat baseado no senderId e chatId.
     
     - **senderId**: ID do usuário que está solicitando o histórico
     - **chatId**: ID do chat do qual recuperar as mensagens
     """
-    history = get_history(historyRequest.senderId, historyRequest.chatId)
+    history = get_history(senderId, chatId)
     def toSenderId(role: str):
-        return historyRequest.senderId if role == "user" else None
+        return senderId if role == "user" else None
 
     return [
         MessageResponseDTO(senderId=toSenderId(message['role']), content=message['conteudo'])
