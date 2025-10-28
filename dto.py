@@ -2,11 +2,6 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class ChatHistoryRequestDTO(BaseModel):
-    senderId: str
-    chatId: str
-
-
 class MessageRequestDTO(BaseModel):
     senderId: str
     content: str
