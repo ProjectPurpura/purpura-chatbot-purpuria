@@ -14,6 +14,7 @@
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 
 ## Overview ✨
+Um agente inteligente de IA que acessa informações dos nossos bancos para servir de suporte do nosso aplicativo.
 
 ## Link do Swagger 🧪
 - Link do swagger (Produção): [https://chatbot-purpuria.onrender.com/docs](https://chatbot-purpuria-lk48.onrender.com/docs)
