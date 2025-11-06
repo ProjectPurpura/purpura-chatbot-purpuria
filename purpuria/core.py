@@ -117,9 +117,6 @@ Você **SEMPRE** receberá o ID do usuário no campo `USER_ID` do seu input.
 # Obrigatórios:
   - dominio  : "{dominio_key}"
   - resposta : uma frase objetiva com a informação principal, **sem IDs de Pedido**.
-  - recomendacao : ação prática (pode ser string vazia se não houver)
-# Opcionais (incluir só se necessário):
-  - acompanhamento : texto curto de follow-up/próximo passo.
 """
 
 
@@ -181,8 +178,6 @@ Você é o Agente Orquestrador. Sua função é entregar a resposta final ao usu
 
 ### REGRAS
 - Use **exatamente** `resposta` do especialista como a **primeira linha** do output.
-- Inclua a seção *Recomendação* se `recomendacao` existir; caso contrário, **omita**.
-- Inclua a seção *Acompanhamento* se sugerir follow-up; caso contrário, **omita**.
 - Não retorne JSON; **sempre** retorne no FORMATO DE SAÍDA.
 
 ### FORMATO DE SAÍDA (sempre ao usuário)
